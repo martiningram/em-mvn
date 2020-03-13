@@ -66,6 +66,31 @@ def log_likelihood(log_pi, mus, sigmas, data):
 
 
 def fit_em(init_mus, init_sigmas, init_log_pi, data, callback=None, tol=1e-8):
+    """
+    Fits a mixture of multivariate normals using expectation maximisation [EM].
+
+    In the following, K is the number of clusters, M is the dimensionality
+    of the observations, and N is the number of data points.
+
+    Args:
+        init_mus: The initial means. This is an [K x M] numpy array.
+        init_sigmas: The initial covariances. This is an [K x M x M] numpy
+            array. Each has to be positive definite.
+        init_log_pi: The initial prior probability for each class label, on
+            the log scale; a numpy array of shape [K,].
+        data: The observations to fit. This should be an array of size [N, M].
+        callback: If provided, this function will be called at each step with
+            the current iteration, the current means, covariances, log prior
+            probabilities, and log likelihoods up to that point. This can
+            be used e.g. for plotting or printing.
+        tol: The tolerance for assessing convergence. If the absolute
+            difference from one step to the next is less than this value,
+            the estimates are returned.
+
+    Returns:
+        A tuple of four elements: the optimal means, covariances, log prior
+        class probabilities, and a list of the observed data log likelihoods.
+    """
 
     em_mus, em_sigmas, em_log_pi = init_mus, init_sigmas, init_log_pi
 
