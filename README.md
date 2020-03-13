@@ -1,6 +1,6 @@
 # EM for mixture of multivariate normals
 
-Just a quick implementation of EM.
+A simple implementation of expectation maximisation for a mixture of multivariate normal distributions. For details, see e.g. Chapter 9 in [Christopher Bishop's Pattern Recognition and Machine Learning book](https://www.microsoft.com/en-us/research/uploads/prod/2006/01/Bishop-Pattern-Recognition-and-Machine-Learning-2006.pdf).
 
 There are just two files in this repository:
 
