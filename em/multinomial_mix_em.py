@@ -11,12 +11,49 @@ def e_step(em_log_pi, em_log_rho, x):
     return log_gamma
 
 
+def safe_log_rho_numerator(log_gamma, x):
+
+    K = log_gamma.shape[1]
+    M = x.shape[1]
+
+    log_result = np.zeros((K, M))
+
+    # Gamma is N x K
+    # x is N x M
+    for m in range(x.shape[1]):
+
+        cur_x = x[:, m]
+        to_keep = cur_x > 0
+        x_to_sum = cur_x[to_keep]
+
+        log_x = np.log(x_to_sum)
+        cur_log_gamma = log_gamma[to_keep]
+        # Log x will be N*
+        # Gamma will be N* x K
+
+        # Sum them up
+        cur_res = log_x.reshape(-1, 1) + cur_log_gamma
+        summed = logsumexp(cur_res, axis=0)
+
+        log_result[:, m] = summed
+
+    return log_result
+
+
 def m_step(log_gamma, x):
 
     # Log rho update -- not happy about the exps but not sure how to avoid?
-    numerator = np.einsum('nk,nm->km', np.exp(log_gamma), x)
-    denominator = np.einsum('nk,nm->k', np.exp(log_gamma), x)
-    new_log_rho = np.log(numerator) - np.log(denominator.reshape(-1, 1))
+    # numerator = np.einsum('nk,nm->km', np.exp(log_gamma), x)
+    log_numerator = safe_log_rho_numerator(log_gamma, x)
+    # log_numerator = np.log(numerator)
+
+    # This will be N x 1
+    a = np.sum(x, axis=1, keepdims=True)
+    summed_denom = np.log(a) + log_gamma
+    denominator = logsumexp(summed_denom, axis=0)
+
+    # denominator = np.einsum('nk,nm->k', np.exp(log_gamma), x)
+    new_log_rho = log_numerator - denominator.reshape(-1, 1)
 
     # Log pi update
     N = x.shape[0]
